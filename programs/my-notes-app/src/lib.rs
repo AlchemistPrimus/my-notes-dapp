@@ -8,17 +8,17 @@ pub mod my_notes_app {
     use super::*;
 
     // Implementing the logic or program actions
-    pub fn add_note(ctx: Context<AddingNote>, text: String) -> Result<()> {
+    pub fn add_note(ctx: Context<AddingNote>, text: String, title: String) -> Result<()> {
         let note = &mut ctx.accounts.note;
         let author = &ctx.accounts.author; // The author account
         let clock = Clock::get().unwrap(); // Getting the current timestamp
 
-        if text.chars().count() > 400 {
+        if text.chars().count() > 400 || title.chars().count() > 64 {
             return Err(ErrorCode::TextTooLong.into());
         }
 
         note.author = *author.key;
-        note.is_done = false;
+        note.title = title;
         note.created_at = clock.unix_timestamp;
         note.updated_at = clock.unix_timestamp;
         note.text = text;
@@ -26,13 +26,17 @@ pub mod my_notes_app {
         Ok(())
     }
 
-    pub fn update_note(ctx: Context<UpdatingNote>, is_done: bool) -> Result<()> {
+    pub fn update_note(ctx: Context<UpdatingNote>, text: String) -> Result<()> {
         let note = &mut ctx.accounts.note;
         let author = &ctx.accounts.author;
         let clock = Clock::get().unwrap();
 
+        if text.chars().count() > 400 {
+            return Err(ErrorCode::TextTooLong.into());
+        }
+
         note.author = *author.key;
-        note.is_done = is_done;
+        note.text = text;
         note.updated_at = clock.unix_timestamp;
         Ok(())
     }
@@ -43,7 +47,8 @@ pub mod my_notes_app {
         let clock = Clock::get().unwrap();
 
         note.author = *author.key;
-        note.is_done = true;
+        note.title = "".to_string();
+        note.text = "".to_string();
         note.updated_at = clock.unix_timestamp;
         Ok(())
     }
@@ -84,7 +89,7 @@ pub struct DeletingNote<'info> {
 #[account]
 pub struct Note {
     pub author: Pubkey, // Account that owns the note
-    pub is_done: bool, // Checking whether the note is done or not.
+    pub title: String, // This is the title or topic of the note.
     pub text: String, // Text describing the note.
     pub created_at: i64, // Timestamp of the note creation.
     pub updated_at: i64, // Timestamp of the note update.
@@ -93,7 +98,7 @@ pub struct Note {
 /// Setting the space.
 const DISCRIMINATOR: usize = 8; // Indicates the type or purpose of the account's data.
 const PUBLIC_KEY_LENGTH: usize = 32;
-const BOOL_LENGTH: usize = 1;
+const TITLE_LENGTH: usize = 4 + 65 * 4; // 64 chars.
 const TEXT_LENGTH: usize = 4 + 400 * 4; // 400 chars.
 const TIMESTAMP_LENGTH: usize = 8;
 
@@ -101,7 +106,7 @@ const TIMESTAMP_LENGTH: usize = 8;
 impl Note {
     const LEN: usize = DISCRIMINATOR + // discriminator
         PUBLIC_KEY_LENGTH + // author
-        BOOL_LENGTH + // is_done
+        TITLE_LENGTH+ // title
         TEXT_LENGTH + // text
         TIMESTAMP_LENGTH + // created_at
         TIMESTAMP_LENGTH; // updated_at
