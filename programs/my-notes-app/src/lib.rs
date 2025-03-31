@@ -8,7 +8,7 @@ pub mod my_notes_app {
     use super::*;
 
     // Implementing the logic or program actions
-    pub fn add_note(ctx: Context<AddingNote>, text: String, title: String) -> Result<()> {
+    pub fn add_note(ctx: Context<AddingNote>, title: String, text: String) -> Result<()> {
         let note = &mut ctx.accounts.note;
         let author = &ctx.accounts.author; // The author account
         let clock = Clock::get().unwrap(); // Getting the current timestamp
