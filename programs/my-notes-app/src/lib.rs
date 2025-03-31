@@ -1,7 +1,7 @@
 #![allow(unexpected_cfgs)]
 use anchor_lang::prelude::*;
 
-declare_id!("5KY6JkV4BcNTJ2yoyVTXbEGHPRm6rAYbEHUSZkmE88zL");
+declare_id!("DAYEaUQ6mxZVyY6Mz4xpoh7kGTGGGDSXWccSfhfdq7kc");
 
 #[program]
 pub mod my_notes_app {

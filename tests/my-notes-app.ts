@@ -20,7 +20,7 @@ describe("my-notes-app", () => {
     const noteAccount = await program.account.note.fetch(note.publicKey);
     console.log("Your note", noteAccount);
 
-    assert.equal(noteAccount.author.toBase58(), author.wallet.publicKey.toBase558());
+    assert.equal(noteAccount.author.toBase58(), author.wallet.publicKey.toBase58());
     assert.equal(noteAccount.text, "This is my life in solitude...");
     assert.equal(noteAccount.title, "Introduction");
     assert.ok(noteAccount.createdAt);
